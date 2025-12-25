@@ -31,6 +31,7 @@
         const Config = {
             company: "Your Company",
             email: "admin@company.com",
+            showNote: false, // show a note row
             showBadge: true, // show a small "MPMP" badge
             accent: "red", // "auto" | "blue" | "green" | "orange" | "pink" |"red"
             lang: "auto" // "auto" | "en" | "fa"
@@ -322,7 +323,7 @@
             if (lang.heading) $("mpmpHeading").textContent = lang.heading;
             if (lang.message) $("mpmpMessage").textContent = lang.message;
 
-            if (lang.note && lang.note.trim().length > 0) {
+            if (Config.showNote && lang.note && lang.note.trim().length > 0) {
                 $("mpmpNote").textContent = lang.note;
                 $("mpmpNote").style.display = "";
             } else {
