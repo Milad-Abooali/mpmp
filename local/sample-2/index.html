@@ -38,6 +38,7 @@
         };
         const content = {};
         content.en = {
+            label: "English",
             documentElement: "en",
             dir: "ltr",
             pageTitle: "We’ll be back soon",
@@ -48,6 +49,7 @@
             footer: new Date().getFullYear() + " © " +  Config.company,
         };
         content.fa = {
+            label: "Persian",
             documentElement: "fa",
             dir: "rtl",
             pageTitle: "به‌زودی برمی‌گردیم",
@@ -127,9 +129,7 @@
         }
 
         .badge{
-            position:absolute;
-            top: 14px;
-            right: 14px;
+            position:static;
             font-size: 12px;
             letter-spacing: .12em;
             text-transform: uppercase;
@@ -144,12 +144,80 @@
             .badge{ background: rgba(255,255,255,.55); }
         }
 
+        .topbar{
+            position:absolute;
+            top:14px;
+            left:14px;
+            right:14px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+        }
+        [dir="rtl"] .topbar{direction: ltr;}
+
+
+        .lang{
+            border:1px solid var(--line);
+            border-radius:999px;
+            overflow:hidden;
+            background: rgba(0,0,0,.08);
+        }
+
+        @media (prefers-color-scheme: light){
+            .lang{ background: rgba(255,255,255,.55); }
+        }
+
+        .lang-select{
+            appearance:none;
+            -webkit-appearance:none;
+            -moz-appearance:none;
+            border:0;
+            background:transparent;
+            color: var(--muted);
+            padding: 8px 34px 8px 12px; /* جا برای فلش */
+            font-size:12px;
+            letter-spacing:.08em;
+            text-transform:uppercase;
+            cursor:pointer;
+            line-height:1;
+            outline:none;
+        }
+
+        .lang{
+            position:relative;
+        }
+        .lang::after{
+            content:"▾";
+            position:absolute;
+            right:12px;
+            top:50%;
+            transform:translateY(-50%);
+            color: var(--muted);
+            pointer-events:none;
+            font-size:12px;
+        }
+
+        @media (prefers-color-scheme: light){
+            .lang-btn[aria-pressed="true"]{
+                background: rgba(0,0,0,.06);
+            }
+        }
+
+
         .row{
             display:flex;
             gap: 18px;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
+        }
+
+
+        .main{
+            margin-top: var(--pad);
+            padding-top: var(--pad);
+            border-top: 1px solid var(--line);
         }
 
         .icon{
@@ -242,9 +310,20 @@
 <main class="wrap">
     <section class="card" role="status" aria-live="polite">
         <div class="header">
-            <div class="badge" id="mpmpBadge" aria-hidden="true">MPMP</div>
 
-            <div class="row">
+            <div class="topbar">
+                <div class="badge" id="mpmpBadge" aria-hidden="true">MPMP</div>
+
+                <div class="lang" aria-label="Language selector">
+                    <label class="sr-only" for="langSelect">Language</label>
+                    <select id="langSelect" class="lang-select">
+                        <!-- options با JS پر میشه -->
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="row main">
 
                 <div class="icon mpmp-logo" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="50" height="50"
@@ -289,8 +368,45 @@
 
 <script>
     (function(){
+        const STORAGE_KEY = "mpmp_lang";
+        function getAvailableLangs(){
+            return Object.keys(content).filter(k => content[k] && content[k].documentElement);
+        }
+
+        function fillLangSelect(selected){
+            const sel = document.getElementById("langSelect");
+            if (!sel) return;
+
+            const langs = getAvailableLangs();
+            sel.innerHTML = "";
+
+            langs.forEach(k => {
+                const opt = document.createElement("option");
+                opt.value = k;
+                opt.textContent = (content[k].label || k).toUpperCase();
+                sel.appendChild(opt);
+            });
+
+            sel.value = selected;
+        }
+
+        function getSavedLang(){
+            try { return localStorage.getItem(STORAGE_KEY); } catch(e) { return null; }
+        }
+
+        function saveLang(l){
+            try { localStorage.setItem(STORAGE_KEY, l); } catch(e) {}
+        }
+
         function pickLang(){
+            // 1) saved language overrides config
+            const saved = getSavedLang();
+            if (saved === "en" || saved === "fa") return saved;
+
+            // 2) config overrides auto-detect
             if (Config.lang && Config.lang !== "auto") return Config.lang;
+
+            // 3) auto-detect
             const l = (navigator.language || "en").toLowerCase();
             return l.startsWith("fa") ? "fa" : "en";
         }
@@ -308,14 +424,21 @@
             if (val) document.documentElement.style.setProperty("--accent", val);
         }
 
-        function applySettings(){
-            const lang = content[pickLang()];
+        function setLangButtonsActive(langKey){
+            document.querySelectorAll(".lang-btn").forEach(btn => {
+                const isActive = btn.dataset.lang === langKey;
+                btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+            });
+        }
+
+        function applySettings(langKey){
+            const lang = content[langKey] || content.en;
+            fillLangSelect(langKey);
 
             document.documentElement.lang = lang.documentElement;
             document.documentElement.dir = lang.dir;
 
             setAccent(Config.accent || "auto");
-
             document.title = lang.pageTitle || "MPMP";
 
             const $ = (id) => document.getElementById(id);
@@ -331,15 +454,28 @@
             }
 
             $("mpmpFooter").textContent = lang.footer || "";
-
-            // Small status text (can be improved in later versions)
             $("mpmpStatusText").textContent = lang.status;
 
-            // Badge toggle
             $("mpmpBadge").style.display = Config.showBadge ? "" : "none";
+
+            setLangButtonsActive(langKey);
         }
 
-        applySettings();
+        function wireLangSelect(){
+            const sel = document.getElementById("langSelect");
+            if (!sel) return;
+
+            sel.addEventListener("change", () => {
+                const l = sel.value;
+                saveLang(l);
+                applySettings(l);
+            });
+        }
+
+
+        const initialLang = pickLang();
+        applySettings(initialLang);
+        wireLangSelect();
     })();
 </script>
 
