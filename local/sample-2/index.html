@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="MPMP — Multi Purpose Maintenance Page" />
+
+    <!--
+      ==========================================================
+      MPMP — Multi Purpose Maintenance Page (Single-file)
+      Version: 0.1.0
+      License: MIT (suggested)
+      Repo: (your github url)
+      ==========================================================
+
+      ✅ HOW TO USE (v0.1):
+      - Edit the settings object below (MPMP_SETTINGS).
+      - Keep this file as a single static page (index.html).
+    -->
+
+    <script>
+        // ==========================================================
+        // MPMP Settings (edit here)
+        // ==========================================================
+        const MPMP_SETTINGS = {
+            pageTitle: "We’ll be back soon",
+            heading: "Maintenance in progress",
+            message:
+                "We’re doing a quick update to improve the experience. Please check back in a few minutes.",
+            note: "If you need us urgently, contact: support@example.com",
+            footer: "© " + new Date().getFullYear() + " Your Company",
+            showBadge: true,           // show a small "MPMP" badge
+            accent: "auto",            // "auto" | "blue" | "green" | "orange" | "pink"
+            lang: "auto"               // "auto" | "en" | "fa"
+        };
+
+        // Optional: Persian defaults you can quickly switch to later
+        const MPMP_FA_PRESET = {
+            pageTitle: "به‌زودی برمی‌گردیم",
+            heading: "سایت موقتاً در حال به‌روزرسانی است",
+            message: "در حال انجام تغییرات کوتاه برای بهتر شدن تجربه هستیم. چند دقیقه دیگر دوباره سر بزنید.",
+            note: "در صورت نیاز فوری: support@example.com",
+            footer: "© " + new Date().getFullYear() + " شرکت شما"
+        };
+    </script>
+
+    <title>MPMP</title>
+
+    <style>
+        :root{
+            --bg1:#0b1220;
+            --bg2:#0a0f1a;
+            --card: rgba(255,255,255,.06);
+            --card2: rgba(255,255,255,.10);
+            --text: rgba(255,255,255,.92);
+            --muted: rgba(255,255,255,.70);
+            --line: rgba(255,255,255,.14);
+            --shadow: 0 10px 35px rgba(0,0,0,.35);
+            --radius: 18px;
+            --pad: 22px;
+            --max: 760px;
+            --accent: #6aa6ff;
+        }
+
+        /* Light mode */
+        @media (prefers-color-scheme: light){
+            :root{
+                --bg1:#f7f8fb;
+                --bg2:#eff2f9;
+                --card: rgba(0,0,0,.04);
+                --card2: rgba(0,0,0,.06);
+                --text: rgba(0,0,0,.88);
+                --muted: rgba(0,0,0,.62);
+                --line: rgba(0,0,0,.10);
+                --shadow: 0 10px 30px rgba(0,0,0,.10);
+            }
+        }
+
+        html,body{height:100%}
+        body{
+            margin:0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+            color: var(--text);
+            background: radial-gradient(1200px 600px at 20% 10%, rgba(106,166,255,.18), transparent 55%),
+            radial-gradient(900px 500px at 85% 30%, rgba(141,255,194,.14), transparent 55%),
+            linear-gradient(180deg, var(--bg1), var(--bg2));
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding: 26px;
+            box-sizing: border-box;
+        }
+
+        .wrap{
+            width: min(var(--max), 100%);
+        }
+
+        .card{
+            background: linear-gradient(180deg, var(--card), transparent);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow:hidden;
+        }
+
+        .header{
+            padding: calc(var(--pad) + 6px) var(--pad) var(--pad);
+            border-bottom: 1px solid var(--line);
+            position: relative;
+            background:
+                    radial-gradient(700px 220px at 10% 0%, rgba(106,166,255,.16), transparent 55%),
+                    radial-gradient(700px 220px at 90% 0%, rgba(255,153,102,.12), transparent 55%);
+        }
+
+        .badge{
+            position:absolute;
+            top: 14px;
+            right: 14px;
+            font-size: 12px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(0,0,0,.08);
+            color: var(--muted);
+            user-select:none;
+        }
+        @media (prefers-color-scheme: light){
+            .badge{ background: rgba(255,255,255,.55); }
+        }
+
+        .row{
+            display:flex;
+            gap: 18px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .icon{
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(106,166,255,.22), rgba(106,166,255,.06));
+            border: 1px solid var(--line);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex: 0 0 auto;
+        }
+        .icon svg{ width: 22px; height: 22px; opacity: .9; }
+
+        h1{
+            margin: 0;
+            font-size: clamp(22px, 3.2vw, 34px);
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+
+        .content{
+            padding: var(--pad);
+        }
+
+        .msg{
+            font-size: 15.5px;
+            line-height: 1.7;
+            color: var(--muted);
+            margin: 12px 0 0;
+            max-width: 64ch;
+        }
+
+        .note{
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid var(--line);
+            background: rgba(0,0,0,.06);
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        @media (prefers-color-scheme: light){
+            .note{ background: rgba(255,255,255,.55); }
+        }
+
+        .footer{
+            padding: 14px var(--pad);
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            display:flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 13px;
+        }
+
+        .dot{
+            display:inline-block;
+            width:8px;height:8px;border-radius:999px;
+            background: var(--accent);
+            box-shadow: 0 0 0 6px rgba(106,166,255,.12);
+            margin-right: 8px;
+            transform: translateY(1px);
+        }
+
+        .status{
+            display:flex;
+            align-items:center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .sr-only{
+            position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+        }
+
+        /* Simple RTL support when lang is fa */
+        [dir="rtl"] body { direction: rtl; }
+        [dir="rtl"] .badge { right: auto; left: 14px; }
+        [dir="rtl"] .dot { margin-right: 0; margin-left: 8px; }
+    </style>
+</head>
+
+<body>
+<main class="wrap">
+    <section class="card" role="status" aria-live="polite">
+        <div class="header">
+            <div class="badge" id="mpmpBadge" aria-hidden="true">MPMP</div>
+
+            <div class="row">
+                <div class="icon" aria-hidden="true">
+                    <!-- simple wrench icon -->
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M21 7.5a6 6 0 0 1-8.7 5.3L7.6 17.5a2 2 0 1 1-2.8-2.8l4.7-4.7A6 6 0 1 1 21 7.5Z"
+                              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
+                <div style="flex:1 1 420px; min-width: 260px;">
+                    <h1 id="mpmpHeading">Maintenance in progress</h1>
+                    <p class="msg" id="mpmpMessage">
+                        We’re doing a quick update to improve the experience. Please check back in a few minutes.
+                    </p>
+                </div>
+
+                <span class="sr-only" id="mpmpAriaStatus">Site temporarily unavailable</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="note" id="mpmpNote">
+                If you need us urgently, contact: support@example.com
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="status">
+                <span class="dot" aria-hidden="true"></span>
+                <span id="mpmpStatusText">Temporary downtime</span>
+            </div>
+            <div id="mpmpFooter">© 2025 Your Company</div>
+        </div>
+    </section>
+</main>
+
+<script>
+    (function(){
+        function pickLang(){
+            if (MPMP_SETTINGS.lang && MPMP_SETTINGS.lang !== "auto") return MPMP_SETTINGS.lang;
+            const l = (navigator.language || "en").toLowerCase();
+            return l.startsWith("fa") ? "fa" : "en";
+        }
+
+        function setAccent(accent){
+            const map = {
+                auto: null,
+                blue: "#6aa6ff",
+                green: "#56f2a6",
+                orange: "#ff9a5c",
+                pink: "#ff6fd8"
+            };
+            const val = map[accent] || map.auto;
+            if (val) document.documentElement.style.setProperty("--accent", val);
+        }
+
+        function applySettings(){
+            const lang = pickLang();
+
+            // Optional quick preset if user wants Persian:
+            // if (lang === "fa") Object.assign(MPMP_SETTINGS, MPMP_FA_PRESET);
+
+            document.documentElement.lang = (lang === "fa") ? "fa" : "en";
+            document.documentElement.dir = (lang === "fa") ? "rtl" : "ltr";
+
+            setAccent(MPMP_SETTINGS.accent || "auto");
+
+            document.title = MPMP_SETTINGS.pageTitle || "MPMP";
+
+            const $ = (id) => document.getElementById(id);
+
+            if (MPMP_SETTINGS.heading) $("mpmpHeading").textContent = MPMP_SETTINGS.heading;
+            if (MPMP_SETTINGS.message) $("mpmpMessage").textContent = MPMP_SETTINGS.message;
+
+            if (MPMP_SETTINGS.note && MPMP_SETTINGS.note.trim().length > 0) {
+                $("mpmpNote").textContent = MPMP_SETTINGS.note;
+                $("mpmpNote").style.display = "";
+            } else {
+                $("mpmpNote").style.display = "none";
+            }
+
+            $("mpmpFooter").textContent = MPMP_SETTINGS.footer || "";
+
+            // Small status text (can be improved in later versions)
+            $("mpmpStatusText").textContent = (lang === "fa") ? "اختلال موقت" : "Temporary downtime";
+
+            // Badge toggle
+            $("mpmpBadge").style.display = MPMP_SETTINGS.showBadge ? "" : "none";
+        }
+
+        applySettings();
+    })();
+</script>
+</body>
+</html>
