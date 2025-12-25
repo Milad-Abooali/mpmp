@@ -10,42 +10,55 @@
       MPMP — Multi Purpose Maintenance Page (Single-file)
       Version: 0.1.0
       License: MIT (suggested)
-      Repo: (your github url)
+      Repo: https://github.com/Milad-Abooali/mpmp
       ==========================================================
-
-      ✅ HOW TO USE (v0.1):
-      - Edit the settings object below (MPMP_SETTINGS).
-      - Keep this file as a single static page (index.html).
     -->
 
+    <link rel="icon" type="image/svg+xml"
+          href="data:image/svg+xml,
+  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
+    <path d='M21 7.5a6 6 0 0 1-8.7 5.3L7.6 17.5a2 2 0 1 1-2.8-2.8l4.7-4.7A6 6 0 1 1 21 7.5Z'
+          fill='none'
+          stroke='%239aa0a6'
+          stroke-width='1.8'
+          stroke-linecap='round'
+          stroke-linejoin='round'/>
+    <circle cx='15.2' cy='7.4' r='3.5' fill='%23e54848'/>
+  </svg>" />
+
     <script>
-        // ==========================================================
-        // MPMP Settings (edit here)
-        // ==========================================================
-        const MPMP_SETTINGS = {
+        /* MPMP Settings (edit here) */
+        const Config = {
+            company: "Your Company",
+            email: "admin@company.com",
+            showBadge: true, // show a small "MPMP" badge
+            accent: "red", // "auto" | "blue" | "green" | "orange" | "pink" |"red"
+            lang: "auto" // "auto" | "en" | "fa"
+        };
+        const content = {};
+        content.en = {
+            documentElement: "en",
+            dir: "ltr",
             pageTitle: "We’ll be back soon",
             heading: "Maintenance in progress",
-            message:
-                "We’re doing a quick update to improve the experience. Please check back in a few minutes.",
-            note: "If you need us urgently, contact: support@example.com",
-            footer: "© " + new Date().getFullYear() + " Your Company",
-            showBadge: true,           // show a small "MPMP" badge
-            accent: "auto",            // "auto" | "blue" | "green" | "orange" | "pink"
-            lang: "auto"               // "auto" | "en" | "fa"
+            message: "We’re doing a quick update to improve the experience. Please check back in a few minutes.",
+            note: "If you need us urgently, contact: " + Config.email,
+            status: "Temporary downtime",
+            footer: new Date().getFullYear() + " © " +  Config.company,
         };
-
-        // Optional: Persian defaults you can quickly switch to later
-        const MPMP_FA_PRESET = {
+        content.fa = {
+            documentElement: "fa",
+            dir: "rtl",
             pageTitle: "به‌زودی برمی‌گردیم",
             heading: "سایت موقتاً در حال به‌روزرسانی است",
             message: "در حال انجام تغییرات کوتاه برای بهتر شدن تجربه هستیم. چند دقیقه دیگر دوباره سر بزنید.",
-            note: "در صورت نیاز فوری: support@example.com",
-            footer: "© " + new Date().getFullYear() + " شرکت شما"
+            note: "در صورت نیاز فوری: " + Config.email,
+            status: "اختلال موقت",
+            footer: new Date().getFullYear() + ' © ' +Config.company,
         };
+
     </script>
-
     <title>MPMP</title>
-
     <style>
         :root{
             --bg1:#0b1220;
@@ -139,8 +152,8 @@
         }
 
         .icon{
-            width: 46px;
-            height: 46px;
+            width: 125px;
+            height: 125px;
             border-radius: 14px;
             background: linear-gradient(135deg, rgba(106,166,255,.22), rgba(106,166,255,.06));
             border: 1px solid var(--line);
@@ -148,8 +161,10 @@
             align-items:center;
             justify-content:center;
             flex: 0 0 auto;
+            color: #3f4043;
         }
-        .icon svg{ width: 22px; height: 22px; opacity: .9; }
+        .icon svg{ width: 70px; height: 70px; opacity: .9; }
+
 
         h1{
             margin: 0;
@@ -229,11 +244,18 @@
             <div class="badge" id="mpmpBadge" aria-hidden="true">MPMP</div>
 
             <div class="row">
-                <div class="icon" aria-hidden="true">
-                    <!-- simple wrench icon -->
-                    <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M21 7.5a6 6 0 0 1-8.7 5.3L7.6 17.5a2 2 0 1 1-2.8-2.8l4.7-4.7A6 6 0 1 1 21 7.5Z"
-                              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+                <div class="icon mpmp-logo" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="50" height="50"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.8"
+                         stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <!-- wrench -->
+                        <path d="M21 7.5a6 6 0 0 1-8.7 5.3L7.6 17.5a2 2 0 1 1-2.8-2.8l4.7-4.7A6 6 0 1 1 21 7.5Z"/>
+                        <!-- status dot (down) -->
+                        <circle cx="15.2" cy="7.4" r="3.5" fill="#e54848"/>
                     </svg>
                 </div>
 
@@ -267,7 +289,7 @@
 <script>
     (function(){
         function pickLang(){
-            if (MPMP_SETTINGS.lang && MPMP_SETTINGS.lang !== "auto") return MPMP_SETTINGS.lang;
+            if (Config.lang && Config.lang !== "auto") return Config.lang;
             const l = (navigator.language || "en").toLowerCase();
             return l.startsWith("fa") ? "fa" : "en";
         }
@@ -278,48 +300,47 @@
                 blue: "#6aa6ff",
                 green: "#56f2a6",
                 orange: "#ff9a5c",
-                pink: "#ff6fd8"
+                pink: "#ff6fd8",
+                red: "#e54848"
             };
             const val = map[accent] || map.auto;
             if (val) document.documentElement.style.setProperty("--accent", val);
         }
 
         function applySettings(){
-            const lang = pickLang();
+            const lang = content[pickLang()];
 
-            // Optional quick preset if user wants Persian:
-            // if (lang === "fa") Object.assign(MPMP_SETTINGS, MPMP_FA_PRESET);
+            document.documentElement.lang = lang.documentElement;
+            document.documentElement.dir = lang.dir;
 
-            document.documentElement.lang = (lang === "fa") ? "fa" : "en";
-            document.documentElement.dir = (lang === "fa") ? "rtl" : "ltr";
+            setAccent(Config.accent || "auto");
 
-            setAccent(MPMP_SETTINGS.accent || "auto");
-
-            document.title = MPMP_SETTINGS.pageTitle || "MPMP";
+            document.title = lang.pageTitle || "MPMP";
 
             const $ = (id) => document.getElementById(id);
 
-            if (MPMP_SETTINGS.heading) $("mpmpHeading").textContent = MPMP_SETTINGS.heading;
-            if (MPMP_SETTINGS.message) $("mpmpMessage").textContent = MPMP_SETTINGS.message;
+            if (lang.heading) $("mpmpHeading").textContent = lang.heading;
+            if (lang.message) $("mpmpMessage").textContent = lang.message;
 
-            if (MPMP_SETTINGS.note && MPMP_SETTINGS.note.trim().length > 0) {
-                $("mpmpNote").textContent = MPMP_SETTINGS.note;
+            if (lang.note && lang.note.trim().length > 0) {
+                $("mpmpNote").textContent = lang.note;
                 $("mpmpNote").style.display = "";
             } else {
                 $("mpmpNote").style.display = "none";
             }
 
-            $("mpmpFooter").textContent = MPMP_SETTINGS.footer || "";
+            $("mpmpFooter").textContent = lang.footer || "";
 
             // Small status text (can be improved in later versions)
-            $("mpmpStatusText").textContent = (lang === "fa") ? "اختلال موقت" : "Temporary downtime";
+            $("mpmpStatusText").textContent = lang.status;
 
             // Badge toggle
-            $("mpmpBadge").style.display = MPMP_SETTINGS.showBadge ? "" : "none";
+            $("mpmpBadge").style.display = Config.showBadge ? "" : "none";
         }
 
         applySettings();
     })();
 </script>
+
 </body>
 </html>
